@@ -1800,7 +1800,7 @@ Teacher:
       if(!s.source){ alert('Paste or upload an existing lesson plan first.'); return ''; }
       if(!s.grade){ alert('Enter a target grade or grade band first.'); return ''; }
       const extensionRule=s.extensions ? 'Generate only relevant optional interdisciplinary extensions and a reasonable learning extension.' : 'Leave all optional extensions and the learning extension empty.';
-      const prompt=`You are converting an existing lesson plan into a new publication format. Return exactly one valid JSON object and nothing else: no Markdown fences, preface, notes, or trailing commentary.
+      const prompt=`You are converting an existing lesson plan into a new publication format. Return exactly one valid JSON object and nothing else: no Markdown fences, preface, notes, or trailing commentary. Before returning it, internally validate that JSON.parse would succeed.
 
 TARGET SETTINGS
 - Grade or grade band: ${s.grade}
@@ -1828,6 +1828,9 @@ REQUIRED JSON SHAPE
 ${JSON.stringify(converterSchemaExample(),null,2)}
 
 VALIDATION RULES
+- Escape every double quotation mark that appears inside a JSON string as \\". Prefer apostrophes inside prose and quoted classroom prompts when possible.
+- Encode line breaks inside string values as \\n; never place a literal unescaped line break inside a JSON string.
+- Do not use trailing commas, JavaScript comments, undefined, or single-quoted property values.
 - Use arrays even when there is only one item.
 - duration_minutes must equal ${s.duration}.
 - start_minute and end_minute must be numbers, with no gaps or overlaps.
@@ -1883,9 +1886,48 @@ ${s.source}
       if(!parts.length) parts.push('<b>Valid:</b> Required structure and timing checks passed. Standards still require teacher review before publication.');
       el.innerHTML=parts.join('<br>'); el.classList.toggle('error',result.errors.length>0);
     }
-    function parseConversionJson(text){ return normalizeConvertedPlan(extractJson(text)); }
+    let lastConversionRepair='';
+    function repairCommonGptJson(text){
+      let s=String(text||'').replace(/^\uFEFF/,'').replace(/```(?:json)?/gi,'').replace(/```/g,'').trim();
+      const first=s.indexOf('{'), last=s.lastIndexOf('}');
+      if(first<0 || last<=first) throw new Error('No complete JSON object found.');
+      s=s.slice(first,last+1).replace(/,\s*([}\]])/g,'$1');
+      let out='', inString=false, escaped=false, repairs=0;
+      for(let i=0;i<s.length;i++){
+        const ch=s[i];
+        if(!inString){ out+=ch; if(ch==='"')inString=true; continue; }
+        if(escaped){ out+=ch; escaped=false; continue; }
+        if(ch==='\\'){ out+=ch; escaped=true; continue; }
+        if(ch==='\n' || ch==='\r'){ out+='\\n'; repairs++; continue; }
+        if(ch==='\t'){ out+='\\t'; repairs++; continue; }
+        if(ch==='"'){
+          let j=i+1; while(j<s.length && /\s/.test(s[j]))j++;
+          const next=s[j]||'';
+          if(next==='' || next===',' || next==='}' || next===']' || next===':'){ out+=ch; inString=false; }
+          else{ out+='\\"'; repairs++; }
+          continue;
+        }
+        out+=ch;
+      }
+      if(inString) throw new Error('JSON contains an unfinished quoted string. Ask ChatGPT to regenerate the response.');
+      const parsed=JSON.parse(out);
+      return {parsed,repairs};
+    }
+    function parseConversionJson(text){
+      lastConversionRepair='';
+      try{ return normalizeConvertedPlan(extractJson(text)); }
+      catch(originalError){
+        try{
+          const repaired=repairCommonGptJson(text);
+          lastConversionRepair=repaired.repairs ? `Automatically repaired ${repaired.repairs} common JSON formatting issue${repaired.repairs===1?'':'s'} (usually unescaped quotes or line breaks). Review the affected prose.` : 'Removed a trailing comma or wrapper from the JSON response.';
+          return normalizeConvertedPlan(repaired.parsed);
+        }catch(repairError){
+          throw new Error(`${originalError.message || originalError} Automatic repair also failed: ${repairError.message || repairError}`);
+        }
+      }
+    }
     function loadConvertedPlan(plan){
-      converterState.plan=plan; $c('conversionJsonEditor').value=JSON.stringify(plan,null,2); setConverterStatus(validateConvertedPlan(plan)); renderConvertedPlan(plan); saveConverter();
+      converterState.plan=plan; $c('conversionJsonEditor').value=JSON.stringify(plan,null,2); const validation=validateConvertedPlan(plan); if(lastConversionRepair)validation.warnings.unshift(lastConversionRepair); setConverterStatus(validation); renderConvertedPlan(plan); saveConverter();
     }
     function listHtml(items){ const vals=converterList(items); return vals.length ? `<ul>${vals.map(x=>`<li>${converterEscape(x)}</li>`).join('')}</ul>` : '' }
     function renderConvertedPlan(p){
@@ -1932,4 +1974,3 @@ ${s.source}
   </script>
 </body>
 </html>
-
