@@ -6,11 +6,11 @@
   <title>Lesson Plan Generator &amp; Converter</title>
   <style>
     :root{
-      --primary:#2C6694;
-      --primary-dark:#1f4f75;
-      --secondary:#74A9D3;
-      --secondary-soft:#C5DCEE;
-      --secondary-pale:#EAF5FC;
+      --primary:#2774AE;
+      --primary-dark:#003B5C;
+      --secondary:#FFD100;
+      --secondary-soft:#DAEBFE;
+      --secondary-pale:#F2F8FC;
       --bg:#F4F7FA;
       --paper:#FFFFFF;
       --ink:#1f2933;
@@ -391,7 +391,7 @@
       line-height:1;
     }
     .word-doc .category-heading{
-      background:#74A9D3;
+      background:#2774AE;
       color:#fff;
       font-weight:bold;
       text-align:center;
@@ -508,18 +508,23 @@
     .status-box.error{ background:#fff1f2; color:#9f1239; }
     .converter-preview{ position:sticky; top:74px; max-height:calc(100vh - 110px); overflow:auto; background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:20px; }
     .new-doc{ font-family:Arial,Helvetica,sans-serif; color:#111; font-size:11pt; line-height:1.35; max-width:8.5in; margin:auto; }
-    .new-doc .hero{ background:#1d3155; color:#fff; padding:22px; text-align:center; }
+    .new-doc .hero{ background:#2774AE; color:#fff; padding:22px; text-align:center; }
     .new-doc .hero h1{ margin:0 0 4px; font-size:24px; }
-    .new-doc .hero p{ margin:0; color:#e0b62f; }
-    .new-doc h2{ background:#cfad47; color:#fff; padding:9px 12px; font-size:15px; margin:16px 0 6px; }
+    .new-doc .hero p{ margin:0; color:#FFD100; }
+    .new-doc h2{ background:#FFD100; color:#003B5C; padding:9px 12px; font-size:15px; margin:16px 0 6px; }
     .new-doc table{ width:100%; border-collapse:collapse; }
     .new-doc th,.new-doc td{ border:1px solid #cfd3d8; padding:8px; vertical-align:top; text-align:left; }
-    .new-doc th{ background:#1d3155; color:#fff; }
+    .new-doc th{ background:#003B5C; color:#fff; }
     .new-doc tr:nth-child(even) td{ background:#f3efe7; }
-    .new-doc .meta td:nth-child(odd){ font-weight:700; color:#1d3155; background:#e7edf4; width:16%; }
+    .new-doc .meta td:nth-child(odd){ font-weight:700; color:#003B5C; background:#DAEBFE; width:16%; }
     .new-doc .teacher-note{ color:#a32620; font-style:italic; display:block; margin-top:6px; }
     .new-doc ul{ margin:6px 0; padding-left:22px; }
     .origin-note{ font-size:11px; color:var(--muted); }
+    .grade-picker{ display:flex; flex-wrap:wrap; gap:8px; }
+    .grade-option{ display:flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid var(--line); border-radius:999px; background:#fff; color:var(--primary-dark); font-size:13px; font-weight:800; text-transform:none; letter-spacing:0; }
+    .grade-option input{ width:auto; margin:0; }
+    .ccc-line-help{ font-size:11px; color:var(--muted); margin-top:4px; }
+    .adaptation-divider{ margin:28px 0 8px; padding:10px 12px; background:#003B5C; color:#fff; font-weight:900; font-size:18px; page-break-before:always; }
     @media print{
       #createWorkspace,#converterControls,.topbar{ display:none !important; }
       #convertWorkspace{ display:block !important; padding:0; }
@@ -537,7 +542,8 @@
       </div>
       <div class="actions">
         <div class="mode-switch" aria-label="Workspace mode">
-          <button type="button" class="active" id="createModeButton">Create New</button>
+          <button type="button" class="active" id="createModeButton">Geffen Format</button>
+          <button type="button" id="cccModeButton">California Common Core</button>
           <button type="button" id="convertModeButton">Convert Existing</button>
         </div>
                 <button type="button" class="ghost" id="aiButton">AI Draft</button>
@@ -683,6 +689,30 @@
       </div>
     </section>
   </main>
+  <main class="converter-shell" id="cccWorkspace" hidden>
+    <div class="converter-grid">
+      <section class="panel" id="cccControls">
+        <div class="panel-hd"><div><b>California Common Core Builder</b><span>Build this format directly, or use ChatGPT to create grade-specific adaptations.</span></div><div class="hint" id="cccSaveStatus">Builder autosave ready</div></div>
+        <div class="panel-bd">
+          <div class="grid-2"><div><label for="cccTitle">Lesson title</label><input id="cccTitle"></div><div><label for="cccSubtitle">Subtitle</label><input id="cccSubtitle"></div><div><label for="cccSubject">Subject / course</label><input id="cccSubject"></div><div><label for="cccDuration">Duration (minutes)</label><input id="cccDuration" type="number" min="1" value="45"></div></div>
+          <div><label>Target grade adaptations</label><div class="grade-picker" id="cccGrades"><label class="grade-option"><input type="checkbox" value="9" checked>9th Grade</label><label class="grade-option"><input type="checkbox" value="10">10th Grade</label><label class="grade-option"><input type="checkbox" value="11-12">11th–12th Grade</label></div></div>
+          <div><label for="cccStandards">Standards</label><textarea id="cccStandards" placeholder="One per line: CODE | Official description"></textarea></div>
+          <div class="grid-2"><div><label for="cccObjectives">Learning objectives</label><textarea id="cccObjectives" placeholder="One objective per line"></textarea></div><div><label for="cccMaterials">Materials & supplies</label><textarea id="cccMaterials" placeholder="One item per line"></textarea></div></div>
+          <div><label for="cccProcedure">Lesson procedure</label><textarea id="cccProcedure" style="min-height:180px" placeholder="One step per line: 0-10 | WARM-UP | Student activity | Optional teacher note"></textarea><div class="ccc-line-help">Use continuous time ranges. The last step should end at the lesson duration.</div></div>
+          <div class="grid-3"><div><label for="cccEll">ELL students</label><textarea id="cccEll" placeholder="One strategy per line"></textarea></div><div><label for="cccAdvanced">Advanced students</label><textarea id="cccAdvanced" placeholder="One strategy per line"></textarea></div><div><label for="cccMovement">Movement needs</label><textarea id="cccMovement" placeholder="One strategy per line"></textarea></div></div>
+          <div class="grid-3"><div><label for="cccMusic">Music extension</label><textarea id="cccMusic"></textarea></div><div><label for="cccMath">Math / science extension</label><textarea id="cccMath"></textarea></div><div><label for="cccArt">Art extension</label><textarea id="cccArt"></textarea></div></div>
+          <div><label for="cccHomework">Learning extension / homework</label><textarea id="cccHomework"></textarea></div>
+          <div><label for="cccTeacherNotes">Extended teacher notes</label><textarea id="cccTeacherNotes" placeholder="One note per line: Heading | Note content"></textarea></div>
+          <div class="actions"><button type="button" id="cccUpdatePreview">Update Preview</button><button type="button" id="cccBuildPrompt">Build Adaptations Prompt</button><button type="button" class="secondary" id="cccCopyPrompt">Copy Prompt</button><button type="button" class="ghost" id="cccOpenChat">Open ChatGPT</button></div>
+          <div><label for="cccPrompt">Generated prompt</label><textarea id="cccPrompt" class="json-area"></textarea></div>
+          <div><label for="cccResponse">Paste ChatGPT JSON</label><textarea id="cccResponse" class="json-area"></textarea></div>
+          <div class="actions"><button type="button" id="cccLoadResponse">Validate & Load Adaptations</button><button type="button" class="ghost" id="cccCopyFormatted">Copy Complete Formatted Plan</button><button type="button" class="secondary" id="cccDownloadDoc">Download .doc</button></div>
+          <div id="cccStatus" class="status-box">Build directly or load a ChatGPT response.</div>
+        </div>
+      </section>
+      <section class="panel"><div class="panel-hd"><div><b>California Common Core Preview</b><span>Formatted with the blue-and-gold document palette.</span></div><button type="button" class="ghost" id="cccPrint">Print / Save PDF</button></div><div class="converter-preview"><div id="cccPreview"><div class="empty">Enter fields and choose Update Preview.</div></div></div></section>
+    </div>
+  </main>
   <main class="converter-shell" id="convertWorkspace" hidden>
     <div class="converter-grid">
       <section class="panel" id="converterControls">
@@ -693,7 +723,7 @@
             <div><label for="sourceLessonPlan">Existing lesson plan</label><textarea id="sourceLessonPlan" style="min-height:210px" placeholder="Paste the complete existing lesson plan here, or upload a text-based file below."></textarea></div>
             <div class="actions"><input id="sourceFile" type="file" accept=".txt,.md,.html,.json,text/plain,text/html,application/json" style="max-width:320px"><button type="button" class="ghost" id="pasteSourceButton">Paste</button></div>
             <div class="grid-3">
-              <div><label for="targetGrade">Target grade</label><input id="targetGrade" type="text" placeholder="Example: 7 or 6-8"></div>
+              <div><label>Target grades</label><div class="grade-picker" id="convertGrades"><label class="grade-option"><input type="checkbox" value="9" checked>9th</label><label class="grade-option"><input type="checkbox" value="10">10th</label><label class="grade-option"><input type="checkbox" value="11-12">11th–12th</label></div><input id="targetGrade" type="hidden" value="9"></div>
               <div><label for="targetSubject">Subject / course</label><input id="targetSubject" type="text" placeholder="Example: World History"></div>
               <div><label for="targetDuration">Duration (minutes)</label><input id="targetDuration" type="number" min="1" value="45"></div>
             </div>
@@ -960,7 +990,7 @@
         </tr>
       `).join('');
       const tableStyle = `width:100%;border-collapse:collapse;background:#fff;mso-table-lspace:0pt;mso-table-rspace:0pt;${docBaseStyle()}`;
-      const category = docCellStyle('background:#74A9D3;color:#fff;font-weight:bold;text-align:center;');
+      const category = docCellStyle('background:#2774AE;color:#fff;font-weight:bold;text-align:center;');
       const sub = docCellStyle('background:#C5DCEE;font-weight:bold;text-align:center;width:10%;');
       const subLight = docCellStyle('background:#E3F2FD;font-weight:bold;text-align:center;');
       const fill = docCellStyle();
@@ -1043,15 +1073,15 @@
     .status-box.error{ background:#fff1f2; color:#9f1239; }
     .converter-preview{ position:sticky; top:74px; max-height:calc(100vh - 110px); overflow:auto; background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:20px; }
     .new-doc{ font-family:Arial,Helvetica,sans-serif; color:#111; font-size:11pt; line-height:1.35; max-width:8.5in; margin:auto; }
-    .new-doc .hero{ background:#1d3155; color:#fff; padding:22px; text-align:center; }
+    .new-doc .hero{ background:#2774AE; color:#fff; padding:22px; text-align:center; }
     .new-doc .hero h1{ margin:0 0 4px; font-size:24px; }
-    .new-doc .hero p{ margin:0; color:#e0b62f; }
-    .new-doc h2{ background:#cfad47; color:#fff; padding:9px 12px; font-size:15px; margin:16px 0 6px; }
+    .new-doc .hero p{ margin:0; color:#FFD100; }
+    .new-doc h2{ background:#FFD100; color:#003B5C; padding:9px 12px; font-size:15px; margin:16px 0 6px; }
     .new-doc table{ width:100%; border-collapse:collapse; }
     .new-doc th,.new-doc td{ border:1px solid #cfd3d8; padding:8px; vertical-align:top; text-align:left; }
-    .new-doc th{ background:#1d3155; color:#fff; }
+    .new-doc th{ background:#003B5C; color:#fff; }
     .new-doc tr:nth-child(even) td{ background:#f3efe7; }
-    .new-doc .meta td:nth-child(odd){ font-weight:700; color:#1d3155; background:#e7edf4; width:16%; }
+    .new-doc .meta td:nth-child(odd){ font-weight:700; color:#003B5C; background:#DAEBFE; width:16%; }
     .new-doc .teacher-note{ color:#a32620; font-style:italic; display:block; margin-top:6px; }
     .new-doc ul{ margin:6px 0; padding-left:22px; }
     .origin-note{ font-size:11px; color:var(--muted); }
@@ -1131,15 +1161,15 @@
     .status-box.error{ background:#fff1f2; color:#9f1239; }
     .converter-preview{ position:sticky; top:74px; max-height:calc(100vh - 110px); overflow:auto; background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:20px; }
     .new-doc{ font-family:Arial,Helvetica,sans-serif; color:#111; font-size:11pt; line-height:1.35; max-width:8.5in; margin:auto; }
-    .new-doc .hero{ background:#1d3155; color:#fff; padding:22px; text-align:center; }
+    .new-doc .hero{ background:#2774AE; color:#fff; padding:22px; text-align:center; }
     .new-doc .hero h1{ margin:0 0 4px; font-size:24px; }
-    .new-doc .hero p{ margin:0; color:#e0b62f; }
-    .new-doc h2{ background:#cfad47; color:#fff; padding:9px 12px; font-size:15px; margin:16px 0 6px; }
+    .new-doc .hero p{ margin:0; color:#FFD100; }
+    .new-doc h2{ background:#FFD100; color:#003B5C; padding:9px 12px; font-size:15px; margin:16px 0 6px; }
     .new-doc table{ width:100%; border-collapse:collapse; }
     .new-doc th,.new-doc td{ border:1px solid #cfd3d8; padding:8px; vertical-align:top; text-align:left; }
-    .new-doc th{ background:#1d3155; color:#fff; }
+    .new-doc th{ background:#003B5C; color:#fff; }
     .new-doc tr:nth-child(even) td{ background:#f3efe7; }
-    .new-doc .meta td:nth-child(odd){ font-weight:700; color:#1d3155; background:#e7edf4; width:16%; }
+    .new-doc .meta td:nth-child(odd){ font-weight:700; color:#003B5C; background:#DAEBFE; width:16%; }
     .new-doc .teacher-note{ color:#a32620; font-style:italic; display:block; margin-top:6px; }
     .new-doc ul{ margin:6px 0; padding-left:22px; }
     .origin-note{ font-size:11px; color:var(--muted); }
@@ -1776,9 +1806,10 @@ Teacher:
     function converterDownload(name, content, type='text/plain'){
       const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
+    function selectedGrades(containerId){ return Array.from($c(containerId).querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value); }
     function converterSettings(){
       return {
-        source:$c('sourceLessonPlan').value.trim(), grade:$c('targetGrade').value.trim(), subject:$c('targetSubject').value.trim(),
+        source:$c('sourceLessonPlan').value.trim(), grades:selectedGrades('convertGrades'), grade:selectedGrades('convertGrades').join(', '), subject:$c('targetSubject').value.trim(),
         duration:Math.max(1,parseInt($c('targetDuration').value,10)||45), adaptation:$c('adaptationLevel').value,
         frameworks:$c('standardsFrameworks').value.trim(), context:$c('studentContext').value.trim(), extensions:$c('includeExtensions').checked
       };
@@ -1798,12 +1829,13 @@ Teacher:
     function buildConverterPrompt(){
       const s=converterSettings();
       if(!s.source){ alert('Paste or upload an existing lesson plan first.'); return ''; }
-      if(!s.grade){ alert('Enter a target grade or grade band first.'); return ''; }
+      if(!s.grades.length){ alert('Select at least one target grade first.'); return ''; }
       const extensionRule=s.extensions ? 'Generate only relevant optional interdisciplinary extensions and a reasonable learning extension.' : 'Leave all optional extensions and the learning extension empty.';
-      const prompt=`You are converting an existing lesson plan into a new publication format. Return exactly one valid JSON object and nothing else: no Markdown fences, preface, notes, or trailing commentary. Before returning it, internally validate that JSON.parse would succeed.
+      const batchRule=s.grades.length>1 ? `Return a top-level object with an adaptations array. Include exactly one entry for each selected grade (${s.grade}). Each entry must be {"grade_level":"GRADE","lesson_plan":REQUIRED_LESSON_PLAN_OBJECT}.` : 'Return one REQUIRED_LESSON_PLAN_OBJECT.';
+      const prompt=`You are converting an existing lesson plan into a new California Common Core publication format. Return exactly one valid JSON object and nothing else: no Markdown fences, preface, notes, or trailing commentary. Before returning it, internally validate that JSON.parse would succeed.
 
 TARGET SETTINGS
-- Grade or grade band: ${s.grade}
+- Grade adaptations: ${s.grade}
 - Subject/course: ${s.subject || 'Infer from the source, but adapt to the target grade'}
 - Total duration: ${s.duration} minutes
 - Adaptation level: ${s.adaptation}
@@ -1815,7 +1847,7 @@ CONVERSION JOB
 2. Repurpose useful information even when the old field no longer exists. Combine student and teacher actions into coherent activity descriptions. Move facilitation advice, cautions, setup, misconceptions, and follow-up guidance into teacher_note or extended_teacher_notes.
 3. Remove obsolete published fields, but do not discard their useful instructional content. Do not include SWLG alignment or teacher reflection in the published schema.
 4. Create missing fields when pedagogically useful. Track what was generated in conversion_notes.ai_generated_fields.
-5. Adapt the entire lesson for grade ${s.grade}: vocabulary, directions, background knowledge, reading complexity, cognitive demand, discussion questions, pacing, independence, scaffolds, assessment, sensitive-content framing, and homework.
+5. Adapt the entire lesson independently for every selected grade (${s.grade}): vocabulary, directions, background knowledge, reading complexity, cognitive demand, discussion questions, pacing, independence, scaffolds, assessment, sensitive-content framing, and homework. Do not merely change grade labels.
 6. Create measurable learning objectives appropriate to the selected grade.
 7. Propose a concise standards alignment for the requested frameworks. Use only standards genuinely aligned to an activity or assessment. Never invent a code or description. If unsure, leave the code blank, describe the skill, and set verification_status to needs_review. All standards remain teacher-review candidates.
 8. Convert the procedure to continuous chronological time ranges starting at 0 and ending at exactly ${s.duration}. Every step needs a concise uppercase phase, an actionable activity, and an optional teacher note.
@@ -1826,6 +1858,7 @@ CONVERSION JOB
 
 REQUIRED JSON SHAPE
 ${JSON.stringify(converterSchemaExample(),null,2)}
+${batchRule}
 
 VALIDATION RULES
 - Escape every double quotation mark that appears inside a JSON string as \\". Prefer apostrophes inside prose and quoted classroom prompts when possible.
@@ -1915,23 +1948,33 @@ ${s.source}
     }
     function parseConversionJson(text){
       lastConversionRepair='';
-      try{ return normalizeConvertedPlan(extractJson(text)); }
+      try{ const parsed=extractJson(text); return parsed.adaptations ? {adaptations:parsed.adaptations.map(a=>({grade_level:a.grade_level,lesson_plan:normalizeConvertedPlan(a.lesson_plan||a)}))} : normalizeConvertedPlan(parsed); }
       catch(originalError){
         try{
           const repaired=repairCommonGptJson(text);
           lastConversionRepair=repaired.repairs ? `Automatically repaired ${repaired.repairs} common JSON formatting issue${repaired.repairs===1?'':'s'} (usually unescaped quotes or line breaks). Review the affected prose.` : 'Removed a trailing comma or wrapper from the JSON response.';
-          return normalizeConvertedPlan(repaired.parsed);
+          return repaired.parsed.adaptations ? {adaptations:repaired.parsed.adaptations.map(a=>({grade_level:a.grade_level,lesson_plan:normalizeConvertedPlan(a.lesson_plan||a)}))} : normalizeConvertedPlan(repaired.parsed);
         }catch(repairError){
           throw new Error(`${originalError.message || originalError} Automatic repair also failed: ${repairError.message || repairError}`);
         }
       }
     }
     function loadConvertedPlan(plan){
-      converterState.plan=plan; $c('conversionJsonEditor').value=JSON.stringify(plan,null,2); const validation=validateConvertedPlan(plan); if(lastConversionRepair)validation.warnings.unshift(lastConversionRepair); setConverterStatus(validation); renderConvertedPlan(plan); saveConverter();
+      converterState.plan=plan; $c('conversionJsonEditor').value=JSON.stringify(plan,null,2);
+      const plans=plan.adaptations ? plan.adaptations.map(a=>a.lesson_plan) : [plan];
+      const validation={errors:[],warnings:[]}; plans.forEach((item,i)=>{const v=validateConvertedPlan(item);v.errors.forEach(x=>validation.errors.push(`${plans.length>1?`Adaptation ${i+1}: `:''}${x}`));v.warnings.forEach(x=>validation.warnings.push(`${plans.length>1?`Adaptation ${i+1}: `:''}${x}`));});
+      if(lastConversionRepair)validation.warnings.unshift(lastConversionRepair); setConverterStatus(validation); renderConvertedPlan(plan); saveConverter();
     }
     function listHtml(items){ const vals=converterList(items); return vals.length ? `<ul>${vals.map(x=>`<li>${converterEscape(x)}</li>`).join('')}</ul>` : '' }
-    function renderConvertedPlan(p){
-      if(!p){ $c('convertedPreview').innerHTML='<div class="empty">Converted preview appears after valid JSON is loaded.</div>'; return; }
+    let adaptationRenderId=0;
+    function renderConvertedPlan(p,targetId='convertedPreview'){
+      const target=$c(targetId);
+      if(!p){ target.innerHTML='<div class="empty">Converted preview appears after valid JSON is loaded.</div>'; return; }
+      if(Array.isArray(p.adaptations)){
+        target.innerHTML='';
+        p.adaptations.forEach((a,i)=>{const label=document.createElement('div');label.className='adaptation-divider';label.textContent=`${a.grade_level||a.lesson_plan?.metadata?.grade_level||`Adaptation ${i+1}`} Lesson Plan`;target.appendChild(label);const holder=document.createElement('div');holder.id=`adaptationRender${++adaptationRenderId}`;target.appendChild(holder);renderConvertedPlan(normalizeConvertedPlan(a.lesson_plan||a),holder.id);});
+        return;
+      }
       const m=p.metadata||{}, standards=p.standards_alignment||[], diff=p.differentiation||{}, ext=p.optional_extensions||{};
       const metadataRows=[['Subject',m.subject],['Grade Level',m.grade_level],['Duration',`${m.duration_minutes||''} minutes`],['Presenter',m.presenter],['Episode',m.episode],['Format',m.format]].filter(x=>x[1]);
       const metadataHtml=[]; for(let i=0;i<metadataRows.length;i+=2){ const a=metadataRows[i],b=metadataRows[i+1]; metadataHtml.push(`<tr><td>${converterEscape(a[0])}</td><td>${converterEscape(a[1])}</td>${b?`<td>${converterEscape(b[0])}</td><td>${converterEscape(b[1])}</td>`:'<td></td><td></td>'}</tr>`); }
@@ -1940,36 +1983,59 @@ ${s.source}
       const diffCols=[['ELL Students',diff.ell_students],['Advanced Students',diff.advanced_students],['Movement Needs',diff.movement_needs]];
       const extCols=[['Music',ext.music],['Math / Science',ext.math_science],['Art',ext.art]].filter(x=>x[1]);
       const notes=(p.extended_teacher_notes||[]).map(n=>`<h3>${converterEscape(n.heading)}</h3><p>${converterEscape(n.content)}</p>`).join('');
-      $c('convertedPreview').innerHTML=`<article class="new-doc"><div class="hero"><h1>${converterEscape(m.title||'Untitled Lesson')}</h1>${m.subtitle?`<p>${converterEscape(m.subtitle)}</p>`:''}</div><table class="meta">${metadataHtml.join('')}</table>${standards.length?`<h2>California & Common Core Standards Alignment</h2><table><thead><tr><th>Standard</th><th>Description</th></tr></thead><tbody>${standardRows}</tbody></table>`:''}<h2>Learning Objectives</h2>${listHtml(p.learning_objectives)}<h2>Materials & Supplies</h2>${listHtml(p.materials)}<h2>Step-by-Step Lesson Procedure (${converterEscape(m.duration_minutes)} Minutes)</h2><table><thead><tr><th>Time</th><th>Phase</th><th>Activity</th></tr></thead><tbody>${procedureRows}</tbody></table><h2>Differentiation Strategies</h2><table><thead><tr>${diffCols.map(x=>`<th>${x[0]}</th>`).join('')}</tr></thead><tbody><tr>${diffCols.map(x=>`<td>${listHtml(x[1])}</td>`).join('')}</tr></tbody></table>${extCols.length?`<h2>Optional Extensions & Enrichment</h2><table><thead><tr>${extCols.map(x=>`<th>${x[0]}</th>`).join('')}</tr></thead><tbody><tr>${extCols.map(x=>`<td>${converterEscape(x[1])}</td>`).join('')}</tr></tbody></table>`:''}${p.learning_extension?`<h3>Learning Extension (Homework / Next Class)</h3><p>${converterEscape(p.learning_extension)}</p>`:''}${notes?`<h2>Extended Teacher Notes</h2>${notes}`:''}</article>`;
+      target.innerHTML=`<article class="new-doc"><div class="hero"><h1>${converterEscape(m.title||'Untitled Lesson')}</h1>${m.subtitle?`<p>${converterEscape(m.subtitle)}</p>`:''}</div><table class="meta">${metadataHtml.join('')}</table>${standards.length?`<h2>California & Common Core Standards Alignment</h2><table><thead><tr><th>Standard</th><th>Description</th></tr></thead><tbody>${standardRows}</tbody></table>`:''}<h2>Learning Objectives</h2>${listHtml(p.learning_objectives)}<h2>Materials & Supplies</h2>${listHtml(p.materials)}<h2>Step-by-Step Lesson Procedure (${converterEscape(m.duration_minutes)} Minutes)</h2><table><thead><tr><th>Time</th><th>Phase</th><th>Activity</th></tr></thead><tbody>${procedureRows}</tbody></table><h2>Differentiation Strategies</h2><table><thead><tr>${diffCols.map(x=>`<th>${x[0]}</th>`).join('')}</tr></thead><tbody><tr>${diffCols.map(x=>`<td>${listHtml(x[1])}</td>`).join('')}</tr></tbody></table>${extCols.length?`<h2>Optional Extensions & Enrichment</h2><table><thead><tr>${extCols.map(x=>`<th>${x[0]}</th>`).join('')}</tr></thead><tbody><tr>${extCols.map(x=>`<td>${converterEscape(x[1])}</td>`).join('')}</tr></tbody></table>`:''}${p.learning_extension?`<h3>Learning Extension (Homework / Next Class)</h3><p>${converterEscape(p.learning_extension)}</p>`:''}${notes?`<h2>Extended Teacher Notes</h2>${notes}`:''}</article>`;
     }
+    function lines(id){return $c(id).value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)}
+    function cccBasePlan(grade){
+      const standards=lines('cccStandards').map(line=>{const [code,...rest]=line.split('|');return {framework:'California/Common Core',code:code.trim(),description:rest.join('|').trim(),alignment_reason:'',verification_status:'needs_review'};});
+      const procedure=lines('cccProcedure').map((line,i)=>{const parts=line.split('|').map(x=>x.trim()),range=(parts[0]||'').match(/(\d+)\s*[-–]\s*(\d+)/);return {start_minute:Number(range?.[1]||0),end_minute:Number(range?.[2]||0),phase:parts[1]||`STEP ${i+1}`,activity:parts[2]||'',teacher_note:parts[3]||'',origin:'source'};});
+      return normalizeConvertedPlan({metadata:{title:$c('cccTitle').value.trim(),subtitle:$c('cccSubtitle').value.trim(),subject:$c('cccSubject').value.trim(),grade_level:grade,duration_minutes:Number($c('cccDuration').value||45),presenter:'',episode:'',format:''},standards_alignment:standards,learning_objectives:lines('cccObjectives'),materials:lines('cccMaterials'),procedure,differentiation:{ell_students:lines('cccEll'),advanced_students:lines('cccAdvanced'),movement_needs:lines('cccMovement')},optional_extensions:{music:$c('cccMusic').value.trim(),math_science:$c('cccMath').value.trim(),art:$c('cccArt').value.trim()},learning_extension:$c('cccHomework').value.trim(),extended_teacher_notes:lines('cccTeacherNotes').map(x=>{const [heading,...rest]=x.split('|');return {heading:heading.trim(),content:rest.join('|').trim(),origin:'source'}}),conversion_notes:{source_content_repurposed:[],ai_generated_fields:[],missing_or_uncertain_information:[]}});
+    }
+    function cccCurrentData(){const grades=selectedGrades('cccGrades');const plans=grades.map(g=>({grade_level:g,lesson_plan:cccBasePlan(g)}));return plans.length>1?{adaptations:plans}:plans[0]?.lesson_plan||null;}
+    function buildCccPrompt(){
+      const data=cccCurrentData(),grades=selectedGrades('cccGrades');if(!grades.length){alert('Select at least one grade.');return '';}if(!$c('cccTitle').value.trim()){alert('Enter a lesson title.');return '';}
+      const prompt=`Create complete California Common Core lesson-plan adaptations for grades ${grades.join(', ')}. Preserve every non-empty field in BASE PLAN. For each grade, meaningfully adjust vocabulary, source complexity, scaffolding, discussion questions, cognitive demand, assessment, differentiation, and homework; do not merely change the grade label. Select appropriate California and Common Core standards, but mark them needs_review unless the exact official code and wording are certain. Return valid JSON only, with no Markdown. Escape internal double quotes and validate JSON before returning. Use this exact batch shape: {"adaptations":[{"grade_level":"GRADE","lesson_plan":${JSON.stringify(converterSchemaExample())}}]}. Include exactly one complete adaptation per selected grade. BASE PLAN: ${JSON.stringify(data,null,2)}`;
+      $c('cccPrompt').value=prompt;saveCcc();return prompt;
+    }
+    function saveCcc(){try{const ids=['cccTitle','cccSubtitle','cccSubject','cccDuration','cccStandards','cccObjectives','cccMaterials','cccProcedure','cccEll','cccAdvanced','cccMovement','cccMusic','cccMath','cccArt','cccHomework','cccTeacherNotes','cccPrompt','cccResponse'];const data={};ids.forEach(id=>data[id]=$c(id).value);data.grades=selectedGrades('cccGrades');localStorage.setItem('californiaCommonCoreBuilderV1',JSON.stringify(data));$c('cccSaveStatus').textContent='Autosaved '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}catch(e){}}
+    function restoreCcc(){try{const data=JSON.parse(localStorage.getItem('californiaCommonCoreBuilderV1')||'null');if(!data)return;Object.keys(data).forEach(id=>{if($c(id)&&typeof data[id]==='string')$c(id).value=data[id];});if(data.grades)$c('cccGrades').querySelectorAll('input').forEach(x=>x.checked=data.grades.includes(x.value));}catch(e){}}
+    function inlineFormattedHtml(previewId){
+      const clone=$c(previewId).cloneNode(true), set=(sel,css)=>clone.querySelectorAll(sel).forEach(el=>el.style.cssText+=css);
+      set('.new-doc','font-family:Arial,Helvetica,sans-serif;color:#111;font-size:11pt;line-height:1.35;max-width:8.5in;margin:auto;');set('.hero','background:#2774AE;color:#fff;padding:22px;text-align:center;');set('.hero h1','margin:0 0 4px;font-size:24px;color:#fff;');set('.hero p','margin:0;color:#FFD100;');set('h2','background:#FFD100;color:#003B5C;padding:9px 12px;font-size:15px;margin:16px 0 6px;');set('table','width:100%;border-collapse:collapse;');set('th','background:#003B5C;color:#fff;border:1px solid #cfd3d8;padding:8px;vertical-align:top;text-align:left;');set('td','border:1px solid #cfd3d8;padding:8px;vertical-align:top;text-align:left;');set('.meta td:nth-child(odd)','font-weight:700;color:#003B5C;background:#DAEBFE;width:16%;');set('.teacher-note','color:#a32620;font-style:italic;display:block;margin-top:6px;');set('.adaptation-divider','background:#003B5C;color:#fff;padding:10px 12px;font-weight:900;font-size:18px;margin-top:24px;');return clone.innerHTML;
+    }
+    function copyRichPreview(previewId){const html=inlineFormattedHtml(previewId),text=$c(previewId).innerText;const item=new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([text],{type:'text/plain'})});return navigator.clipboard.write([item]).then(()=>showToast('Complete formatted plan copied')).catch(()=>converterClipboard(text,'Plan copied as text'));}
     function saveConverter(){
-      try{ const values={}; ['sourceLessonPlan','targetGrade','targetSubject','targetDuration','adaptationLevel','standardsFrameworks','studentContext','includeExtensions','conversionPrompt','conversionResponse','conversionJsonEditor'].forEach(id=>values[id]=$c(id).type==='checkbox'?$c(id).checked:$c(id).value); values.plan=converterState.plan; localStorage.setItem(CONVERTER_STORAGE_KEY,JSON.stringify(values)); $c('convertSaveStatus').textContent='Autosaved '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); }catch(e){}
+      try{ const values={}; ['sourceLessonPlan','targetGrade','targetSubject','targetDuration','adaptationLevel','standardsFrameworks','studentContext','includeExtensions','conversionPrompt','conversionResponse','conversionJsonEditor'].forEach(id=>values[id]=$c(id).type==='checkbox'?$c(id).checked:$c(id).value); values.grades=selectedGrades('convertGrades');values.plan=converterState.plan; localStorage.setItem(CONVERTER_STORAGE_KEY,JSON.stringify(values)); $c('convertSaveStatus').textContent='Autosaved '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}); }catch(e){}
     }
     function restoreConverter(){
-      try{ const v=JSON.parse(localStorage.getItem(CONVERTER_STORAGE_KEY)||'null'); if(!v)return; Object.keys(v).forEach(id=>{const el=$c(id); if(el){if(el.type==='checkbox')el.checked=!!v[id];else el.value=v[id]??'';}}); if(v.plan) loadConvertedPlan(normalizeConvertedPlan(v.plan)); }catch(e){}
+      try{ const v=JSON.parse(localStorage.getItem(CONVERTER_STORAGE_KEY)||'null'); if(!v)return; Object.keys(v).forEach(id=>{const el=$c(id); if(el){if(el.type==='checkbox')el.checked=!!v[id];else el.value=v[id]??'';}});if(v.grades)$c('convertGrades').querySelectorAll('input').forEach(x=>x.checked=v.grades.includes(x.value)); if(v.plan) loadConvertedPlan(v.plan.adaptations?v.plan:normalizeConvertedPlan(v.plan)); }catch(e){}
     }
     function switchWorkspace(mode){
-      const convert=mode==='convert'; $c('createWorkspace').hidden=convert; $c('convertWorkspace').hidden=!convert; $c('createModeButton').classList.toggle('active',!convert); $c('convertModeButton').classList.toggle('active',convert);
-      ['aiButton','copyFormattedButton','downloadDocButton','clearButton'].forEach(id=>$c(id).hidden=convert);
-      document.querySelector('.brand h1').textContent=convert?'Lesson Plan Converter':'Lesson Plan Generator';
-      document.querySelector('.brand span').textContent=convert?'Convert existing plans into a grade-adjusted, standards-aligned format':'Fast builder, AI-assisted drafting, Word-ready output';
+      const geffen=mode==='geffen',ccc=mode==='ccc',convert=mode==='convert';$c('createWorkspace').hidden=!geffen;$c('cccWorkspace').hidden=!ccc;$c('convertWorkspace').hidden=!convert;$c('createModeButton').classList.toggle('active',geffen);$c('cccModeButton').classList.toggle('active',ccc);$c('convertModeButton').classList.toggle('active',convert);
+      ['aiButton','copyFormattedButton','downloadDocButton','clearButton'].forEach(id=>$c(id).hidden=!geffen);
+      document.querySelector('.brand h1').textContent=geffen?'Geffen Format':ccc?'California Common Core Builder':'Lesson Plan Converter';document.querySelector('.brand span').textContent=geffen?'Original lesson-plan builder':ccc?'Build standards-aligned lessons directly':'Convert existing plans into grade-specific adaptations';
     }
-    function convertedDocumentHtml(){ return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Converted Lesson Plan</title><style>body{font-family:Arial,sans-serif}.new-doc{max-width:8.5in;margin:auto;font-size:11pt;line-height:1.35}.hero{background:#1d3155;color:#fff;padding:22px;text-align:center}.hero h1{margin:0}.hero p{color:#e0b62f}h2{background:#cfad47;color:#fff;padding:9px 12px;font-size:15px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #cfd3d8;padding:8px;vertical-align:top;text-align:left}th{background:#1d3155;color:#fff}tr:nth-child(even) td{background:#f3efe7}.meta td:nth-child(odd){font-weight:bold;color:#1d3155;background:#e7edf4}.teacher-note{color:#a32620;font-style:italic;display:block;margin-top:6px}.origin-note{font-size:9pt;color:#666}</style></head><body>${$c('convertedPreview').innerHTML}</body></html>`; }
+    function convertedDocumentHtml(previewId='convertedPreview'){ return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>California Common Core Lesson Plan</title></head><body>${inlineFormattedHtml(previewId)}</body></html>`; }
 
     document.addEventListener('DOMContentLoaded',()=>{
-      $c('createModeButton').onclick=()=>switchWorkspace('create'); $c('convertModeButton').onclick=()=>switchWorkspace('convert');
+      $c('createModeButton').onclick=()=>switchWorkspace('geffen');$c('cccModeButton').onclick=()=>switchWorkspace('ccc');$c('convertModeButton').onclick=()=>switchWorkspace('convert');
+      $c('cccUpdatePreview').onclick=()=>{const data=cccCurrentData();renderConvertedPlan(data,'cccPreview');$c('cccStatus').innerHTML='<b>Preview updated.</b> Standards and timing should be reviewed before publication.';saveCcc();};
+      $c('cccBuildPrompt').onclick=buildCccPrompt;$c('cccCopyPrompt').onclick=()=>{const p=buildCccPrompt();if(p)converterClipboard(p,'Adaptations prompt copied');};$c('cccOpenChat').onclick=()=>window.open('https://chatgpt.com/','_blank','noopener');
+      $c('cccLoadResponse').onclick=()=>{try{const data=parseConversionJson($c('cccResponse').value);renderConvertedPlan(data,'cccPreview');$c('cccStatus').innerHTML='<b>Adaptations loaded.</b> Review standards, timing, and AI-generated content.';saveCcc();}catch(e){$c('cccStatus').classList.add('error');$c('cccStatus').textContent=e.message||e;}};
+      $c('cccCopyFormatted').onclick=()=>copyRichPreview('cccPreview');$c('cccDownloadDoc').onclick=()=>converterDownload('california-common-core-lesson-plans.doc','\ufeff'+convertedDocumentHtml('cccPreview'),'application/msword');$c('cccPrint').onclick=()=>{const w=window.open('','_blank');w.document.write(convertedDocumentHtml('cccPreview'));w.document.close();w.print();};
       $c('buildConversionPrompt').onclick=buildConverterPrompt; $c('copyConversionPrompt').onclick=()=>{const p=buildConverterPrompt(); if(p)converterClipboard(p,'Conversion prompt copied');}; $c('openConversionChat').onclick=()=>window.open('https://chatgpt.com/','_blank','noopener');
       $c('pasteSourceButton').onclick=async()=>{try{$c('sourceLessonPlan').value=await navigator.clipboard.readText();saveConverter();}catch(e){showToast('Paste into the source box');}$c('sourceLessonPlan').focus();};
       $c('sourceFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{$c('sourceLessonPlan').value=await f.text();saveConverter();showToast('Source file loaded');}catch(err){alert('This browser could not read the selected file as text. Paste its contents instead.');}};
       $c('pasteConversionResponse').onclick=async()=>{try{$c('conversionResponse').value=await navigator.clipboard.readText();saveConverter();}catch(e){showToast('Paste into the response box');}$c('conversionResponse').focus();};
       $c('parseConversionResponse').onclick=()=>{try{loadConvertedPlan(parseConversionJson($c('conversionResponse').value));showToast('Converted JSON loaded');}catch(e){setConverterStatus({errors:[e.message||String(e)],warnings:[]});}};
-      $c('applyJsonEdits').onclick=()=>{try{loadConvertedPlan(normalizeConvertedPlan(JSON.parse($c('conversionJsonEditor').value)));showToast('JSON edits applied');}catch(e){setConverterStatus({errors:[`Invalid edited JSON: ${e.message||e}`],warnings:[]});}};
+      $c('applyJsonEdits').onclick=()=>{try{const parsed=JSON.parse($c('conversionJsonEditor').value);loadConvertedPlan(parsed.adaptations?{adaptations:parsed.adaptations.map(a=>({grade_level:a.grade_level,lesson_plan:normalizeConvertedPlan(a.lesson_plan||a)}))}:normalizeConvertedPlan(parsed));showToast('JSON edits applied');}catch(e){setConverterStatus({errors:[`Invalid edited JSON: ${e.message||e}`],warnings:[]});}};
       $c('downloadConversionJson').onclick=()=>{if(converterState.plan)converterDownload('converted-lesson-plan.json',JSON.stringify(converterState.plan,null,2),'application/json');};
-      $c('copyConvertedDocument').onclick=()=>{if(!converterState.plan)return;const html=$c('convertedPreview').innerHTML;const item=new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([$c('convertedPreview').innerText],{type:'text/plain'})});navigator.clipboard.write([item]).then(()=>showToast('Converted plan copied')).catch(()=>converterClipboard($c('convertedPreview').innerText,'Converted plan copied'));};
+      $c('copyConvertedDocument').textContent='Copy Complete Formatted Plan';$c('copyConvertedDocument').onclick=()=>{if(converterState.plan)copyRichPreview('convertedPreview');};
       $c('downloadConvertedDoc').onclick=()=>{if(converterState.plan)converterDownload('converted-lesson-plan.doc','\ufeff'+convertedDocumentHtml(),'application/msword');};
-      $c('printConverted').onclick=()=>window.print();
+      $c('printConverted').onclick=()=>{const w=window.open('','_blank');w.document.write(convertedDocumentHtml('convertedPreview'));w.document.close();w.print();};
       ['sourceLessonPlan','targetGrade','targetSubject','targetDuration','adaptationLevel','standardsFrameworks','studentContext','includeExtensions','conversionPrompt','conversionResponse','conversionJsonEditor'].forEach(id=>$c(id).addEventListener('input',()=>{clearTimeout(saveConverter.timer);saveConverter.timer=setTimeout(saveConverter,300);}));
-      restoreConverter(); switchWorkspace('create');
+      const cccIds=['cccTitle','cccSubtitle','cccSubject','cccDuration','cccStandards','cccObjectives','cccMaterials','cccProcedure','cccEll','cccAdvanced','cccMovement','cccMusic','cccMath','cccArt','cccHomework','cccTeacherNotes','cccPrompt','cccResponse'];cccIds.forEach(id=>$c(id).addEventListener('input',()=>{clearTimeout(saveCcc.timer);saveCcc.timer=setTimeout(saveCcc,300);}));$c('cccGrades').addEventListener('change',saveCcc);$c('convertGrades').addEventListener('change',()=>{$c('targetGrade').value=selectedGrades('convertGrades').join(', ');saveConverter();});
+      restoreConverter();restoreCcc();switchWorkspace('geffen');
     });
   </script>
 </body>
