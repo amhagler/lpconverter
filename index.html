@@ -525,6 +525,12 @@
     .grade-option input{ width:auto; margin:0; }
     .ccc-line-help{ font-size:11px; color:var(--muted); margin-top:4px; }
     .adaptation-divider{ margin:28px 0 8px; padding:10px 12px; background:#003B5C; color:#fff; font-weight:900; font-size:18px; page-break-before:always; }
+    .new-doc,.new-doc *{ font-family:"Times New Roman",Times,serif !important; font-size:11pt; line-height:1; mso-line-height-rule:exactly; }
+    .new-doc p,.new-doc li,.new-doc h1,.new-doc h2,.new-doc h3,.new-doc ul,.new-doc ol{ margin-top:0; margin-bottom:0; mso-margin-top-alt:0pt; mso-margin-bottom-alt:0pt; }
+    .new-doc .hero h1,.new-doc .hero p{ color:#fff !important; font-size:20pt !important; line-height:1; margin:0; }
+    .new-doc h2,.new-doc h3,.new-doc th,.new-doc td,.new-doc .teacher-note,.new-doc .origin-note{ font-size:11pt; }
+    .new-doc .origin-note{ font-style:italic; color:#111; }
+    .new-doc .teacher-note{ margin:0; }
     @media print{
       #createWorkspace,#converterControls,.topbar{ display:none !important; }
       #convertWorkspace{ display:block !important; padding:0; }
@@ -1978,8 +1984,8 @@ ${s.source}
       const m=p.metadata||{}, standards=p.standards_alignment||[], diff=p.differentiation||{}, ext=p.optional_extensions||{};
       const metadataRows=[['Subject',m.subject],['Grade Level',m.grade_level],['Duration',`${m.duration_minutes||''} minutes`],['Presenter',m.presenter],['Episode',m.episode],['Format',m.format]].filter(x=>x[1]);
       const metadataHtml=[]; for(let i=0;i<metadataRows.length;i+=2){ const a=metadataRows[i],b=metadataRows[i+1]; metadataHtml.push(`<tr><td>${converterEscape(a[0])}</td><td>${converterEscape(a[1])}</td>${b?`<td>${converterEscape(b[0])}</td><td>${converterEscape(b[1])}</td>`:'<td></td><td></td>'}</tr>`); }
-      const standardRows=standards.map(s=>`<tr><td>${converterEscape(s.code||s.framework||'Needs review')}</td><td>${converterEscape(s.description||'')}<div class="origin-note">${converterEscape(s.verification_status||'needs_review')}${s.alignment_reason?` — ${converterEscape(s.alignment_reason)}`:''}</div></td></tr>`).join('');
-      const procedureRows=(p.procedure||[]).map(s=>`<tr><td>${converterEscape(s.start_minute)}–${converterEscape(s.end_minute)} min</td><td><b>${converterEscape(s.phase)}</b></td><td>${converterEscape(s.activity)}${s.teacher_note?`<span class="teacher-note"><b>Teacher Note:</b> ${converterEscape(s.teacher_note)}</span>`:''}</td></tr>`).join('');
+      const standardRows=standards.map(s=>`<tr><td>${converterEscape(s.code||s.framework||'')}</td><td>${converterEscape(s.description||'')}${s.alignment_reason?`<div class="origin-note">${converterEscape(s.alignment_reason)}</div>`:''}</td></tr>`).join('');
+      const procedureRows=(p.procedure||[]).map(s=>`<tr><td>${converterEscape(s.start_minute)}–${converterEscape(s.end_minute)} min</td><td><b>${converterEscape(s.phase)}</b></td><td>${converterEscape(s.activity)}${s.teacher_note?`<br><span class="teacher-note"><b>Teacher Note:</b> ${converterEscape(s.teacher_note)}</span>`:''}</td></tr>`).join('');
       const diffCols=[['ELL Students',diff.ell_students],['Advanced Students',diff.advanced_students],['Movement Needs',diff.movement_needs]];
       const extCols=[['Music',ext.music],['Math / Science',ext.math_science],['Art',ext.art]].filter(x=>x[1]);
       const notes=(p.extended_teacher_notes||[]).map(n=>`<h3>${converterEscape(n.heading)}</h3><p>${converterEscape(n.content)}</p>`).join('');
@@ -2008,13 +2014,15 @@ ${s.source}
         if(content.length){const table=document.createElement('table'),tbody=document.createElement('tbody'),tr=document.createElement('tr'),td=document.createElement('td');table.style.cssText='width:100%;border-collapse:collapse;table-layout:fixed;margin:0 0 8px 0;';td.style.cssText=boxedCss;content.forEach(x=>td.appendChild(x));tr.appendChild(td);tbody.appendChild(tr);table.appendChild(tbody);heading.parentNode.insertBefore(table,node);}
       });
       const replaceWithBand=(el,bg,color,padding,fontSize)=>{const table=document.createElement('table'),tbody=document.createElement('tbody'),tr=document.createElement('tr'),td=document.createElement('td');table.style.cssText='width:100%;border-collapse:collapse;table-layout:fixed;margin:12px 0 0 0;';td.className='copy-band';td.dataset.copyBg=bg;td.dataset.copyColor=color;td.style.cssText=`background:${bg};color:${color};padding:${padding};border:1px solid ${bg};font-weight:700;font-size:${fontSize};`;td.innerHTML=el.innerHTML;tr.appendChild(td);tbody.appendChild(tr);table.appendChild(tbody);el.replaceWith(table);};
-      clone.querySelectorAll('.hero').forEach(el=>replaceWithBand(el,'#2774AE','#ffffff','20px','18pt'));
-      clone.querySelectorAll('h2').forEach(el=>replaceWithBand(el,'#FFD100','#003B5C','9px 12px','11.5pt'));
-      clone.querySelectorAll('.adaptation-divider').forEach(el=>replaceWithBand(el,'#003B5C','#ffffff','10px 12px','14pt'));
-      set('.new-doc','font-family:Arial,Helvetica,sans-serif;color:#111111;font-size:11pt;line-height:1.35;max-width:8.5in;margin:auto;');set('.hero h1,h1','margin:0 0 4px;font-size:18pt;color:#ffffff;');set('.hero p','margin:0;color:#FFD100;');set('table','width:100%;border-collapse:collapse;table-layout:fixed;mso-table-lspace:0pt;mso-table-rspace:0pt;');set('th','background:#003B5C;color:#ffffff;border:1px solid #cfd3d8;padding:8px;vertical-align:top;text-align:left;font-family:Arial,Helvetica,sans-serif;');set('td','border:1px solid #cfd3d8;padding:8px;vertical-align:top;text-align:left;font-family:Arial,Helvetica,sans-serif;color:#111111;');set('ul','margin:4px 0;padding-left:22px;');set('li','margin:2px 0;color:#111111;');set('p','margin:4px 0;color:#111111;');set('h3','color:#003B5C;margin:10px 0 4px;font-size:11.5pt;');set('.meta td:nth-child(odd)','font-weight:700;color:#003B5C;background:#DAEBFE;width:16%;');set('.teacher-note','color:#a32620;font-style:italic;display:block;margin-top:6px;');
+      clone.querySelectorAll('.hero').forEach(el=>replaceWithBand(el,'#2774AE','#ffffff','20px','20pt'));
+      clone.querySelectorAll('h2').forEach(el=>replaceWithBand(el,'#FFD100','#003B5C','9px 12px','11pt'));
+      clone.querySelectorAll('.adaptation-divider').forEach(el=>replaceWithBand(el,'#003B5C','#ffffff','10px 12px','11pt'));
+      const typeCss='font-family:"Times New Roman",Times,serif;font-size:11pt;line-height:1;mso-line-height-rule:exactly;margin-top:0;margin-bottom:0;mso-margin-top-alt:0pt;mso-margin-bottom-alt:0pt;';
+      set('.new-doc',`${typeCss}color:#111111;max-width:8.5in;margin-left:auto;margin-right:auto;`);set('.new-doc *',typeCss);set('table','width:100%;border-collapse:collapse;table-layout:fixed;mso-table-lspace:0pt;mso-table-rspace:0pt;');set('th','background:#003B5C;color:#ffffff;border:1px solid #cfd3d8;padding:8px;vertical-align:top;text-align:left;');set('td','border:1px solid #cfd3d8;padding:8px;vertical-align:top;text-align:left;color:#111111;');set('ul,ol','margin-top:0;margin-bottom:0;padding-left:22px;');set('li,p,h3','margin-top:0;margin-bottom:0;color:#111111;');set('h3','color:#003B5C;');set('.meta td:nth-child(odd)','font-weight:700;color:#003B5C;background:#DAEBFE;width:16%;');set('.teacher-note','color:#a32620;font-style:italic;display:inline;margin:0;');set('.origin-note','font-style:italic;color:#111111;margin:0;');
       clone.querySelectorAll('table:not(.meta) tbody tr').forEach((row,i)=>row.querySelectorAll('td').forEach(td=>{if(!td.style.backgroundColor)td.style.backgroundColor=i%2?'#F3F6F9':'#FFFFFF';}));
       clone.querySelectorAll('.meta tr').forEach(row=>Array.from(row.children).forEach((td,i)=>{td.style.backgroundColor=i%2===0?'#DAEBFE':'#FFFFFF';if(i%2===0){td.style.color='#003B5C';td.style.fontWeight='700';}}));
       clone.querySelectorAll('.copy-band').forEach(td=>{td.style.backgroundColor=td.dataset.copyBg;td.style.color=td.dataset.copyColor;td.style.borderColor=td.dataset.copyBg;});
+      clone.querySelectorAll('.copy-band h1,.copy-band p').forEach(el=>{el.style.fontFamily='Times New Roman, Times, serif';el.style.fontSize='20pt';el.style.lineHeight='1';el.style.color='#ffffff';el.style.margin='0';});
       return clone.innerHTML;
     }
     function legacyRichCopy(html){const holder=document.createElement('div');holder.contentEditable='true';holder.style.cssText='position:fixed;left:-10000px;top:0;width:8.5in;background:#fff;';holder.innerHTML=html;document.body.appendChild(holder);const range=document.createRange();range.selectNodeContents(holder);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);const ok=document.execCommand('copy');selection.removeAllRanges();holder.remove();return ok;}
